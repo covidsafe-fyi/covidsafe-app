@@ -17,7 +17,7 @@ public partial class Locators : ContentPage
             var parens = b.Text.IndexOf('(');
             if (parens > -1)
             {
-                searchName = fullName.Substring(parens + 1, fullName.Length - parens - 2);
+                searchName = fullName.Substring(0, parens - 1).Trim();
             }
             else
             {

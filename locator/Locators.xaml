@@ -3,9 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="locator.Locators"
              Title="Locators">
+    <ScrollView>
     <VerticalStackLayout>
-        <Button Text="Molnupiravir (Lagevrio)" Clicked="ShowLocator" />
-        <Button Text="Paxlovid" Clicked="ShowLocator" />
-        <Button Text="Remdesivir (Veklury)" Clicked="ShowLocator" />
+        <Label Text="HHS/ASPR Covid-19 Therapeutics Info" FontAttributes="Bold" FontSize="18" />
+        <Label Text="Lagevrio (molnupiravir) is an oral antiviral drug that should be initiated as soon as possible after diagnosis of COVID-19 and within 5 days of symptom onset. Available for patients by prescription only. Prescriptions can be obtained from your health care provider or at a Test to Treat program." />
+
+            <Button Text="Lagevrio (Molnupiravir)" Clicked="ShowLocator" HorizontalOptions="Start" Margin="0,0,0,10" />
+        <Label Text="Paxlovid (nirmatrelvir co-packaged with ritonavir) is an oral antiviral drug that should be initiated as soon as possible within 5 days of symptom onset. Available for patients by prescription only. Prescriptions can be obtained from your health care provider or through the Test to Treat program." />
+        <Button Text="Paxlovid" Clicked="ShowLocator" HorizontalOptions="Start" Margin="0,0,0,10"/>
+
+        <Label Text="Veklury (remdesivir) is an antiviral drug that has been approved by the U.S. Food and Drug Administration (FDA) for the treatment of adults and pediatric patients (28 days of age and older and weighing at least 3 kg). Veklury is for people who are hospitalized or not hospitalized with mild to moderate COVID-19 symptoms and are at high risk for progression to severe COVID-19, including hospitalization or death.
+
+Veklury for non-hospitalized patients is administered as an intravenous (IV) infusion over the course of 3 days. It should be initiated within 7 days of symptom onset." />
+
+            <Button Text="Veklury (Remdesivir)" Clicked="ShowLocator" HorizontalOptions="Start" Margin="0,0,0,10"/>
     </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
