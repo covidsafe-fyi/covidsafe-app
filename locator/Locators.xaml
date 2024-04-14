@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="locator.Locators"
+             Title="Locators">
+    <VerticalStackLayout>
+        <Button Text="Molnupiravir (Lagevrio)" Clicked="ShowLocator" />
+        <Button Text="Paxlovid" Clicked="ShowLocator" />
+        <Button Text="Remdesivir (Veklury)" Clicked="ShowLocator" />
+    </VerticalStackLayout>
+</ContentPage>

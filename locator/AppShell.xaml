@@ -8,8 +8,12 @@
     Title="locator">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="locators"
+        ContentTemplate="{DataTemplate local:Locators}"
+        Route="locators" />
+    <ShellContent
+        Title="locator"
+        ContentTemplate="{DataTemplate local:Locator}"
+        Route="locator" />
 
 </Shell>
