@@ -21,6 +21,8 @@ namespace locator
         public string SearchName { get; set; }
         public string FullName { get; set; }
 
+        private int loadCount = 0;
+
         private async void Locator_Loaded(object? sender, EventArgs e)
         {
             if (SearchName != null)
@@ -36,87 +38,105 @@ namespace locator
                 location = new Location(47.60621000, -122.33207000); // seattle
             }
 
-            map.PropertyChanged += async (s, e) =>
-            {
-                if (e.PropertyName == "VisibleRegion")
-                {
-                    if (SearchAlive)
-                    {
-                        map.Pins.Clear();
-                        centerCircle.IsVisible = false;
-                        var lastSelectedProvider = list.SelectedItem as Provider;
-                        CircleSelectedProvider = lastSelectedProvider == null;
-                        Provider? newSelectedProvider = null;
-                        if (map.VisibleRegion != null)
-                        {
-                            var location = map.VisibleRegion.Center;
-                            var meters = map.VisibleRegion.Radius.Meters;
-                            var url = "https://healthdata.gov/resource/xkzp-zhs7.json?"
-                                + $"$where=within_circle(geopoint,{location.Latitude},{location.Longitude},{meters})"
-                                + $"&has_{SearchName}=true";
-                            var stream = await client.GetStreamAsync(url);
-                            var fetchedProviders = await JsonSerializer.DeserializeAsync<IList<Provider>>(stream);
-                            if (fetchedProviders != null)
-                            {
-                                emptyLabel.Text = "";
-                                if (fetchedProviders.Count == 0)
-                                {
-                                    list.ItemsSource = fetchedProviders;
-                                    emptyLabel.Text = "zoom out or move map location to find providers.";
-                                }
-                                else if (fetchedProviders.Count < 101)
-                                {
-                                    fetchedProviders = fetchedProviders.OrderBy(p => p.city).ThenBy(p => p.provider_name).ThenBy(p=>p.address1).ToList();
-                                    newSelectedProvider = null;
-                                    int id = 1;
-                                    foreach (var provider in fetchedProviders)
-                                    {
-                                        provider.provider_id = id++;
-                                        var pin = new ProviderPin()
-                                        {
-                                            Provider = provider,
-                                            Location = new Location(provider.geopoint.coordinates[1], provider.geopoint.coordinates[0]),
-                                            Label = provider.provider_id.ToString(),
-                                            Address = provider.provider_name + ", " + provider.address1 + ", " + provider.city + ", " + provider.public_phone,
-                                        };
+            map.PropertyChanged += Map_PropertyChanged;
 
-                                        if (newSelectedProvider == null && provider.provider_name == lastSelectedProvider?.provider_name
-                                            && provider.address1 == lastSelectedProvider.address1
-                                            && provider.city == lastSelectedProvider.city)
-                                        {
-                                            newSelectedProvider = provider;
-                                        }
-
-                                        pin.MarkerClicked += Pin_MarkerClicked;
-                                        map.Pins.Add(pin);
-                                    }
-
-                                    list.ItemsSource = fetchedProviders;
-                                    list.SelectedItem = newSelectedProvider;
-                                }
-                                else
-                                {
-                                    list.ItemsSource = EmptyProviders;
-                                    emptyLabel.Text = $"this map region has too many providers to display. zoom in or move map location until there are 100 or less providers.";
-                                }
-
-                                Providers = fetchedProviders;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        SearchAlive = true;
-                    }
-                }
-            };
 
             if (map.VisibleRegion != null)
             {
-                map.MoveToRegion(new MapSpan(location, latlongDegrees, latlongDegrees));
+                MapSpan? mapSpan;
+                if (loadCount == 0)
+                {
+                    mapSpan = new MapSpan(location, latlongDegrees, latlongDegrees);
+                    map.MoveToRegion(mapSpan);
+                }
+                else
+                {
+                    await RunQuery();
+                }
+            }
+
+            loadCount++;
+        }
+
+        private async void Map_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "VisibleRegion")
+            {
+                await RunQuery();
             }
         }
 
+        private async Task RunQuery()
+        {
+            if (SearchAlive)
+            {
+                map.Pins.Clear();
+                centerCircle.IsVisible = false;
+                var lastSelectedProvider = list.SelectedItem as Provider;
+                CircleSelectedProvider = lastSelectedProvider == null;
+                Provider? newSelectedProvider = null;
+                if (map.VisibleRegion != null)
+                {
+                    var location = map.VisibleRegion.Center;
+                    var meters = map.VisibleRegion.Radius.Meters;
+                    var url = "https://healthdata.gov/resource/xkzp-zhs7.json?"
+                        + $"$where=within_circle(geopoint,{location.Latitude},{location.Longitude},{meters})"
+                        + $"&has_{SearchName}=true";
+                    var stream = await client.GetStreamAsync(url);
+                    var fetchedProviders = await JsonSerializer.DeserializeAsync<IList<Provider>>(stream);
+                    if (fetchedProviders != null)
+                    {
+                        emptyLabel.Text = "";
+                        if (fetchedProviders.Count == 0)
+                        {
+                            list.ItemsSource = fetchedProviders;
+                            emptyLabel.Text = "zoom out or move map location to find providers.";
+                        }
+                        else if (fetchedProviders.Count < 101)
+                        {
+                            fetchedProviders = fetchedProviders.OrderBy(p => p.state).ThenBy(p => p.city.ToLowerInvariant()).ThenBy(p => p.provider_name.ToLowerInvariant()).ThenBy(p => p.address1).ToList();
+                            newSelectedProvider = null;
+                            int id = 1;
+                            foreach (var provider in fetchedProviders)
+                            {
+                                provider.provider_id = id++;
+                                var pin = new ProviderPin()
+                                {
+                                    Provider = provider,
+                                    Location = new Location(provider.geopoint.coordinates[1], provider.geopoint.coordinates[0]),
+                                    Label = $"#{provider.provider_id}",
+                                    Address = provider.provider_name + ", " + provider.address1 + ", " + provider.city + ", " + provider.public_phone,
+                                };
+
+                                if (newSelectedProvider == null && provider.provider_name == lastSelectedProvider?.provider_name
+                                    && provider.address1 == lastSelectedProvider.address1
+                                    && provider.city == lastSelectedProvider.city)
+                                {
+                                    newSelectedProvider = provider;
+                                }
+
+                                pin.MarkerClicked += Pin_MarkerClicked;
+                                map.Pins.Add(pin);
+                            }
+
+                            list.ItemsSource = fetchedProviders;
+                            list.SelectedItem = newSelectedProvider;
+                        }
+                        else
+                        {
+                            list.ItemsSource = EmptyProviders;
+                            emptyLabel.Text = $"this map region has too many providers to display. zoom in or move map location until there are 100 or less providers.";
+                        }
+
+                        Providers = fetchedProviders;
+                    }
+                }
+            }
+            else
+            {
+                SearchAlive = true;
+            }
+        }
         private void Pin_MarkerClicked(object? sender, Microsoft.Maui.Controls.Maps.PinClickedEventArgs e)
         {
             var pin = sender as ProviderPin;
