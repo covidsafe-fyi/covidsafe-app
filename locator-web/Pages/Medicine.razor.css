@@ -156,7 +156,7 @@ a:active {
 }
 
 td {
-    max-Width: 100px;
+    max-Width: 1000px;
     vertical-Align: top;
     word-Wrap: break-word;
 }
@@ -168,7 +168,7 @@ td {
 }
 
 .tdProvider {
-    max-Width: 200px;
+    max-Width: 1000px;
     overflow: hidden;
     text-Overflow: ellipsis;
     vertical-Align: top;
@@ -227,6 +227,6 @@ th {
 }
 
 .tdTotals {
-    width: 1in;
+    width: 5in;
     font-size: 9pt;
 }
