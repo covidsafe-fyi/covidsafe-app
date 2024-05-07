@@ -41,6 +41,7 @@
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios'">
 	  <CodesignKey>Apple Development: Created via API (YG83C9CK77)</CodesignKey>
 	  <CodesignProvision>VS: WildCard Development</CodesignProvision>
+		<MauiVersion>8.0.14</MauiVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -65,7 +66,12 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="8.0.14" />
+		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="$(MauiVersion)" />
+		<PackageReference Include="CommunityToolkit.Maui.Maps" Version="2.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\locator-library\locator-library.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

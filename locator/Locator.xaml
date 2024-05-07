@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:l="clr-namespace:"
              x:Class="locator.Locator"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
              Title="Locator"
              >
@@ -13,12 +14,13 @@
         </Grid>
     </Shell.TitleView>
     <Grid RowDefinitions="*,20,*">
-        <maps:Map x:Name="map" MapType="Hybrid" IsShowingUser="true" />
+        <toolkit:Map x:Name="map" MapType="Hybrid" IsShowingUser="true" />
+        <!--<maps:Map x:Name="map" MapType="Hybrid" IsShowingUser="true" />-->
         <Ellipse x:Name="centerCircle" IsVisible="False" Fill="Transparent" WidthRequest="30" HeightRequest="30" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="0" Stroke="Orange" StrokeThickness="2" />
         <Label Text="{Binding Providers.Count,StringFormat='{0} providers found'}" Grid.Row="1" TextColor="Blue" Margin="15,0" />
         <CollectionView x:Name="list" Grid.Row="2" SelectionMode="Single" SelectionChanged="list_SelectionChanged" >
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="l:Provider">
+                <DataTemplate>
                     <VerticalStackLayout>
                         <Label Margin="5,2">
                             <Label.FormattedText>
