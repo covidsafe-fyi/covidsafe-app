@@ -12,13 +12,24 @@
 
 <div class="Medicine">
     <div class="centered">
-        <h3 class="breadcrumbbar"><a href="/"><img src="icon-192.png" alt="CovidSafe.fyi" width="96"></a>&nbsp;&gt;&nbsp;<a href="/#have-covid">have covid?</a>&nbsp;&gt;&nbsp;<a href="/@(Drug)">@(DrugCapitalized)</a></h3>
+        <h3 class="breadcrumbbar">
+            <a href="/"><img src="icon-192.png" alt="CovidSafe.fyi" width="96"></a>&nbsp;&gt;&nbsp;
+            @if (Drug == "pemgarda" || Drug == "evusheld")
+            {
+                <a href="/#preventive-medicines">preventive medicines</a>
+            }
+            else
+            {
+                <a href="/#have-covid">have covid?</a>
+            }
+            &nbsp;&gt;&nbsp;<a href="/@(Drug)">@(DrugCapitalized)</a>
+        </h3>
         <label class="chooseState" for="chooseState">
             <select id="chooseDrug" class="mediumFont" @bind="@Drug">
                 <option value="pemgarda">Pemgarda</option>
                 <option value="evusheld">Evusheld (no longer available)</option>
                 <option disabled="">----</option>
-                <option value="paxlovid" selected="">Paxlovid</option>
+                <option value="paxlovid">Paxlovid</option>
                 <option value="molnupiravir">Molnupiravir</option>
                 <option value="remdesivir">Remdesivir</option>
             </select>
@@ -158,7 +169,11 @@
         {
             <PemgardaInfo />
         }
-        else @if (State == "USA")
+        else if (Drug == "evusheld")
+        {
+            <p><b>@(DrugCapitalized)</b> is no longer approved (EUA or otherwise) by FDA, so it is not available.</p>
+        }
+        else if (State == "USA")
         {
             <table class="providerTable">
                 <tbody>
@@ -216,14 +231,7 @@
                     }
                     else
                     {
-                        @if (Drug == "evusheld")
-                        {
-                            <p><b>@(DrugCapitalized)</b> is no longer approved (EUA or otherwise) by FDA, so it is not available.</p>
-                        }
-                        else
-                        {
-                            <p>Fetching <b>@(DrugCapitalized)</b> providers in <b>@(State)</b> from healthdata.gov...</p>
-                        }
+                        <p>Fetching <b>@(DrugCapitalized)</b> providers in <b>@(State)</b> from healthdata.gov...</p>
                     }
                 </tbody>
             </table>
@@ -259,16 +267,17 @@
         var chunks = NavManager.Uri.Split('/');
         var path = chunks[chunks.Length - 1];
         var queryString = path.IndexOf('?');
+        string? newDrugName = null;
         if (queryString > -1)
         {
-            drug = path.Substring(0, queryString);
+            newDrugName = path.Substring(0, queryString);
         }
         else
         {
-            drug = path;
+            newDrugName = path;
         }
 
-        switch (drug)
+        switch (newDrugName)
         {
             case "veklury":
                 drug = "remdesivir";
@@ -279,6 +288,8 @@
                 NavigateTo();
                 break;
             default:
+                drug = newDrugName;
+                StateHasChanged();
                 break;
         }
 
