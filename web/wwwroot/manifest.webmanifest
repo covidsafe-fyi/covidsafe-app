@@ -1,6 +1,6 @@
 {
-  "name": "locator-web",
-  "short_name": "locator-web",
+  "name": "CovidSafe.fyi",
+  "short_name": "CovidSafe",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
