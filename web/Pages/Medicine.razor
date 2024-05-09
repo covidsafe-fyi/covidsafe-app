@@ -251,7 +251,7 @@
     [Inject]
     public NavigationManager NavManager { get; set; } = default!;
     private TextInfo TextInfo { get; set; } = new CultureInfo("en-US", false).TextInfo;
-    IList<Provider>? fetchedProviders = null;
+    List<Provider>? fetchedProviders = null;
     protected override async Task OnInitializedAsync()
     {
         var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
@@ -371,7 +371,29 @@
         var url = "https://healthdata.gov/resource/xkzp-zhs7.json?"
             + $"has_{DrugNameForQuery}=true&state={State}&$order=city,provider_name&$limit=50000";
         var stream = await client.GetStreamAsync(url);
-        this.fetchedProviders = await JsonSerializer.DeserializeAsync<IList<Provider>>(stream);
+        var fetched1 = await JsonSerializer.DeserializeAsync<List<Provider>>(stream);
+        IOrderedEnumerable<Provider> orderedList = null;
+        if (Drug == "remdesivir")
+        {
+            var remdesivirUrl = NavManager.BaseUri + "data/remdesivir-providers-covidsafe-fyi.json";
+            var stream2 = await client.GetStreamAsync(remdesivirUrl);
+            var fetched2 = await JsonSerializer.DeserializeAsync<List<Provider>>(stream2);
+            if (fetched2 != null && fetched1 != null)
+            {
+                fetched1?.AddRange(fetched2.Where(p => p.state == State));
+                orderedList = fetched1.OrderBy(p => p.city).ThenBy(p => p.provider_name);
+            }
+            else
+            {
+                orderedList = fetched1.OrderBy(p => p.city).ThenBy(p => p.provider_name);
+            }
+        }
+        else
+        {
+            orderedList = fetched1.OrderBy(p => p.city).ThenBy(p => p.provider_name);
+        }
+
+        fetchedProviders = new List<Provider>(orderedList);
         StateHasChanged();
     }
 
