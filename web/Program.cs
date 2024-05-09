@@ -1,4 +1,4 @@
-using locator_web;
+using covidsafe_web;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
