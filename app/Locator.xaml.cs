@@ -46,7 +46,7 @@ namespace locator
                 MapSpan? mapSpan;
                 if (loadCount == 0)
                 {
-                    mapSpan = new MapSpan(location, latlongDegrees, latlongDegrees);
+                    mapSpan = new MapSpan(location, latlongDegrees / 3.0, latlongDegrees / 3.0);
                     map.MoveToRegion(mapSpan);
                 }
                 else

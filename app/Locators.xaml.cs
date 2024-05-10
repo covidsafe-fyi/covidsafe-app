@@ -29,4 +29,9 @@ public partial class Locators : ContentPage
             await Shell.Current.GoToAsync("///locator?name=" + searchName + "&fullName=" + fullName);
         }
     }
+
+    private void ShowPage(object sender, EventArgs e)
+    {
+
+    }
 }
