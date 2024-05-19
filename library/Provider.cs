@@ -32,6 +32,7 @@ public class Provider
     public bool has_commercial_paxlovid { get; set; }
     public bool has_usg_paxlovid { get; set; }
     public bool has_lagevrio { get; set; }
+    public bool? has_pemgarda { get; set; }
     public bool has_commercial_lagevrio { get; set; }
     public bool has_usg_lagevrio { get; set; }
     public bool has_veklury { get; set; }
@@ -40,8 +41,10 @@ public class Provider
     [JsonPropertyName(":@computed_region_pqdx_y6mm")]
     public string computed_region_pqdx_y6mm { get; set; }
     public string public_phone { get; set; }
+    public string public_website { get; set; }
     public TelehealthWebsite telehealth_website { get; set; }
     public string provider_note { get; set; }
+    public string insurance_process { get; set; }
 }
 
 public class TelehealthWebsite
