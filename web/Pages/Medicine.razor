@@ -49,6 +49,8 @@
             </table>
         }
 
+        @if (Drug != "pemgarda")
+        {
         <select class="mediumFont" id="chooseState" @bind="@State">
             <option value="USA">United States (USA)</option>
             <option value="AL">Alabama (AL)</option>
@@ -108,8 +110,11 @@
             <option value="WI">Wisconsin (WI)</option>
             <option value="WY">Wyoming (WY)</option>
         </select>
+        }
     </div>
 
+    @if (Drug != "pemgarda")
+    {
     <div class="mapDiv">
         <svg viewBox="0 0 800 600" class="rsm-svg ">
             <g class="rsm-geographies " id="mapGeographies">
@@ -167,6 +172,7 @@
             </g>
         </svg>
     </div>
+    }
 
     <div>
         <div class="smallerCentered">&nbsp;</div>
@@ -174,7 +180,71 @@
         {
             <PemgardaInfoDoctor />
             <PemgardaInfoInfusion />
+        <label>Choose state: </label>
+
+        <select class="mediumFont" id="chooseState" @bind="@State">
+            <option value="USA">United States (USA)</option>
+            <option value="AL">Alabama (AL)</option>
+            <option value="AK">Alaska (AK)</option>
+            <option value="AS">American Samoa (AS)</option>
+            <option value="AZ">Arizona (AZ)</option>
+            <option value="AR">Arkansas (AR)</option>
+            <option value="CA">California (CA)</option>
+            <option value="CO">Colorado (CO)</option>
+            <option value="CT">Connecticut (CT)</option>
+            <option value="DE">Delaware (DE)</option>
+            <option value="DC">District of Columbia (DC)</option>
+            <option value="FL">Florida (FL)</option>
+            <option value="GA">Georgia (GA)</option>
+            <option value="GU">Guam (GU)</option>
+            <option value="HI">Hawaii (HI)</option>
+            <option value="ID">Idaho (ID)</option>
+            <option value="IL">Illinois (IL)</option>
+            <option value="IN">Indiana (IN)</option>
+            <option value="IA">Iowa (IA)</option>
+            <option value="KS">Kansas (KS)</option>
+            <option value="KY">Kentucky (KY)</option>
+            <option value="LA">Louisiana (LA)</option>
+            <option value="ME">Maine (ME)</option>
+            <option value="MD">Maryland (MD)</option>
+            <option value="MA">Massachusetts (MA)</option>
+            <option value="MI">Michigan (MI)</option>
+            <option value="MN">Minnesota (MN)</option>
+            <option value="MS">Mississippi (MS)</option>
+            <option value="MO">Missouri (MO)</option>
+            <option value="MT">Montana (MT)</option>
+            <option value="NE">Nebraska (NE)</option>
+            <option value="NV">Nevada (NV)</option>
+            <option value="NH">New Hampshire (NH)</option>
+            <option value="NJ">New Jersey (NJ)</option>
+            <option value="NM">New Mexico (NM)</option>
+            <option value="NY">New York (NY)</option>
+            <option value="NC">North Carolina (NC)</option>
+            <option value="ND">North Dakota (ND)</option>
+            <option value="CM">Northern Mariana Islands (CM)</option>
+            <option value="OH">Ohio (OH)</option>
+            <option value="OK">Oklahoma (OK)</option>
+            <option value="OR">Oregon (OR)</option>
+            <option value="PA">Pennsylvania (PA)</option>
+            <option value="PR">Puerto Rico (PR)</option>
+            <option value="RI">Rhode Island (RI)</option>
+            <option value="SC">South Carolina (SC)</option>
+            <option value="SD">South Dakota (SD)</option>
+            <option value="TN">Tennessee (TN)</option>
+            <option value="TX">Texas (TX)</option>
+            <option value="VI">U.S. Virgin Islands (VI)</option>
+            <option value="UT">Utah (UT)</option>
+            <option value="VT">Vermont (VT)</option>
+            <option value="VA">Virginia (VA)</option>
+            <option value="WA">Washington (WA)</option>
+            <option value="WV">West Virginia (WV)</option>
+            <option value="WI">Wisconsin (WI)</option>
+            <option value="WY">Wyoming (WY)</option>
+        </select>
+        <br/>
         }
+
+        <label id="providers"></label>
 
         @if (Drug == "evusheld")
         {
@@ -250,7 +320,7 @@
                         }
                         else
                         {
-                            <tr><td colspan="3">Choose a State (at <a href="/@(Drug)/#chooseState">top of page</a>) to see <b>@(DrugCapitalized)</b> Providers<br /><br /></td></tr>
+                            <tr><td colspan="3">Choose a State to see <b>@(DrugCapitalized)</b> Providers<br /><br /></td></tr>
                         }
                     }
 
@@ -463,7 +533,7 @@
         string[]? columns = null;
         if (header != null)
         {
-            columns = header.Split(',');
+            columns = header.Split('\t');
         }
 
         while (!sr.EndOfStream)
@@ -475,51 +545,12 @@
                 string data = "";
                 bool quoteDelimited = false;
                 int colIndex = 0;
-                foreach (char c in line.ToCharArray())
+                var dataCols = line.Split('\t');
+                foreach (string dataCol in dataCols)
                 {
-                    switch (c)
-                    {
-                        case '"':
-                            if (data == "")
-                            {
-                                quoteDelimited = true;
-                            }
-                            else
-                            {
-                                if (!quoteDelimited)
-                                {
-                                    data += c;
-                                }
-                                else
-                                {
-                                    quoteDelimited = false;
-                                }
-                            }
-                            break;
-                        case ',':
-                            if (quoteDelimited)
-                            {
-                                data += c;
-                            }
-                            else
-                            {
-                                ProcessData(data, colIndex, columns, provider);
-                                data = "";
-                                colIndex++;
-                            }
-
-                            break;
-                        default:
-                            data += c;
-                            break;
-                    }
-                }
-
-                if (data != "")
-                {
-                    ProcessData(data, colIndex, columns, provider);
-                    data = "";
+                    ProcessData(dataCol, colIndex, columns, provider);
                     colIndex++;
+                    Console.WriteLine($"{colIndex}: {dataCol}");
                 }
             }
 
@@ -542,6 +573,7 @@
         else
         {
             var url = NavManager.BaseUri + $"data/{Drug}-providers-covidsafe-fyi.csv";
+            Console.WriteLine("url: " + url);
             var stream = await client.GetStreamAsync(url);
             var fetched = await CsvParse(stream);
             return fetched;
@@ -578,7 +610,7 @@
             var fetched2 = await FetchList(client, isJson: false);
             if (fetched2 != null && State != null)
             {
-                providers.AddRange(fetched2.Where(p => p.state.Contains(State)));
+                providers.AddRange(fetched2.Where(p => p.state != null && p.state.Contains(State)));
                 orderedList = providers.OrderBy(p => p.city).ThenBy(p => p.provider_name);
             }
         }
@@ -594,7 +626,7 @@
     {
         if (state != null && state != "USA")
         {
-            NavManager.NavigateTo("/" + Drug + "?state=" + state);
+            NavManager.NavigateTo("/" + Drug + "?state=" + state + (Drug == "pemgarda" ? "#providers" : ""));
         }
         else
         {
